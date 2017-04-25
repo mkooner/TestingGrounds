@@ -64,9 +64,27 @@ void AMyCharacter::BeginPlay()
 	}
 
 	Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
-	Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-	Gun->AnimInstance = Mesh1P->GetAnimInstance();
-	
+
+	if (GetController()->IsPlayerController()) 
+	{
+		Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+		
+	}
+	else
+	{
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+		
+	}
+
+	Gun->AnimInstance1P = Mesh1P->GetAnimInstance();
+	Gun->AnimInstance3P = GetMesh()->GetAnimInstance();
+
+	/*
+	if(InputComponent != NULL) //AI do not have InputComponents caused nullptr crash
+	{
+		InputComponent->BindAction("Fire", IE_Pressed, Gun, &AGun::OnFire);
+	}
+	*/
 }
 
 // Called every frame
@@ -76,17 +94,29 @@ void AMyCharacter::Tick(float DeltaTime)
 
 }
 
+void AMyCharacter::Death()
+{
+	if (Gun == nullptr)
+	{	return; 	}
+
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+}
+
 // Called to bind functionality to input
 void AMyCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	check(PlayerInputComponent);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
 	//InputComponent->BindAction("Fire", IE_Pressed, Gun, &AGun::OnFire);
-	//PlayerInputComponent->BindAction("Fire", IE_Pressed, Gun, &AGun::OnFire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMyCharacter::PullTrigger);
 
 }
 
-void AMyCharacter::Fire()
+void AMyCharacter::PullTrigger()
 {
 	if(Gun == nullptr)
 	{ return;	}
