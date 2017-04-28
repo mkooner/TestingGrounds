@@ -49,6 +49,7 @@ AMyCharacter::AMyCharacter()
 	
 	// Default offset from the character location for projectiles to spawn
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
+
 	
 }
 
@@ -58,33 +59,39 @@ void AMyCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 
-	if (GunBlueprint == NULL)
+
+	if (GunBlueprint == nullptr)
 	{
 		return;
 	}
 
 	Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
+	
 
-	if (GetController()->IsPlayerController()) 
-	{
-		Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-		
-	}
-	else
-	{
-		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-		
-	}
-
+	if (Gun == nullptr)
+	{  return;	}
+	Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 	Gun->AnimInstance1P = Mesh1P->GetAnimInstance();
 	Gun->AnimInstance3P = GetMesh()->GetAnimInstance();
 
-	/*
+
 	if(InputComponent != NULL) //AI do not have InputComponents caused nullptr crash
 	{
 		InputComponent->BindAction("Fire", IE_Pressed, Gun, &AGun::OnFire);
 	}
-	*/
+
+	if(GetController() == nullptr)
+	{ return; }
+
+	if (GetController()->IsPlayerController()) 
+	{
+		//Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	}
+	else
+	{
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	}
+
 }
 
 // Called every frame
@@ -112,7 +119,7 @@ void AMyCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	//InputComponent->BindAction("Fire", IE_Pressed, Gun, &AGun::OnFire);
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMyCharacter::PullTrigger);
+	//PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMyCharacter::PullTrigger);
 
 }
 

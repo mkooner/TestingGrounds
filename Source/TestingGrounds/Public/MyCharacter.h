@@ -31,13 +31,14 @@ class TESTINGGROUNDS_API AMyCharacter : public ACharacter
 
 private:
 
-	/** Gun mesh: 1st person view (seen only by self) */
-	AGun* Gun;
+	
 
 
 public:
 	// Sets default values for this character's properties
 	AMyCharacter();
+	/** Gun mesh: 1st person view (seen only by self) */
+	AGun* Gun;
 
 protected:
 	// Called when the game starts or when spawned
